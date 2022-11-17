@@ -61,6 +61,7 @@ void Error_Handler(void);
 #define POT_ENV_GPIO_Port GPIOA
 #define GATE_Pin GPIO_PIN_2
 #define GATE_GPIO_Port GPIOA
+#define GATE_EXTI_IRQn EXTI2_3_IRQn
 #define DAC_SPI_nSS_Pin GPIO_PIN_3
 #define DAC_SPI_nSS_GPIO_Port GPIOA
 #define DAC_SPI_SCK_Pin GPIO_PIN_5
