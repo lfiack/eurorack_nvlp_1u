@@ -1,21 +1,22 @@
 {
-    "configurations": [
-        {
-            "name": "STM32",
-            "includePath": [
-                "Core/Inc",
-                "Drivers/CMSIS/Device/ST/STM32F0xx/Include",
-                "Drivers/CMSIS/Include",
-                "Drivers/STM32F0xx_HAL_Driver/Inc",
-                "Drivers/STM32F0xx_HAL_Driver/Inc/Legacy",
-                "${workspaceFolder}/nvlp"
-            ],
-            "defines": [
-                "STM32F030x6",
-                "USE_HAL_DRIVER"
-            ],
-            "compilerPath": "/home/laurentf/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/arm-none-eabi-gcc/11.3.1-1.1.2/.content/bin/arm-none-eabi-gcc"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "STM32",
+      "includePath": [
+        "${workspaceFolder}",
+        "Core/Inc",
+        "Drivers/CMSIS/Device/ST/STM32F0xx/Include",
+        "Drivers/CMSIS/Include",
+        "Drivers/STM32F0xx_HAL_Driver/Inc",
+        "Drivers/STM32F0xx_HAL_Driver/Inc/Legacy",
+        "nvlp"
+      ],
+      "defines": [
+        "STM32F030x6",
+        "USE_HAL_DRIVER"
+      ],
+      "compilerPath": "/home/laurentf/.config/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/arm-none-eabi-gcc/11.3.1-1.1.2/.content/bin/arm-none-eabi-gcc"
+    }
+  ],
+  "version": 4
 }

@@ -60,7 +60,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
   if (ADC1 == hadc->Instance)
   {
-    nvlp_timer_callback(&h_nvlp);
+    nvlp_interrupt_callback(&h_nvlp);
   }
 }
 
