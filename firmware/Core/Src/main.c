@@ -46,6 +46,7 @@
 
 /* USER CODE BEGIN PV */
 h_nvlp_t h_nvlp;
+nvlp_driver_t nvlp_driver;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -64,13 +65,63 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
   }
 }
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+uint8_t get_gate_pin(void)
 {
-  if (GATE_Pin == GPIO_Pin)
+  // if (GPIO_PIN_RESET == HAL_GPIO_ReadPin(GATE_GPIO_Port, GATE_Pin))
+  // {
+  //   return 0;
+  // }
+  // else
+  // {
+  //   return 1;
+  // }
+
+  if ((HAL_GetTick()%1000) == 0)
   {
-    // nvlp_gate_callback(&h_nvlp);
+    return 1;
+  }
+  else
+  {
+    return 0;
   }
 }
+
+uint16_t get_potentiometer(void)
+{
+  __HAL_ADC_CLEAR_FLAG(&hadc,ADC_FLAG_EOC);
+  return (uint16_t) HAL_ADC_GetValue(&hadc);
+//  return 20000;
+}
+
+#define MCP49X1_UNBUFFERED 0
+#define MCP49X1_BUFFERED 0x4000
+
+#define MCP49X1_GAIN_0 0
+#define MCP49X1_GAIN_1 0x2000
+
+#define MCP49X1_SHDN 0
+#define MCP49X1_ACTIVE 0x1000
+
+void set_output(uint16_t value)
+{
+  //SPI 20MHz max (-> configured to 12MHz in CubeMX)
+  //SPI supports mode 0,0 and 1,1 so CPOL=Low and CPHA=1 Edge I guess?
+  //SPI is 16 bits
+  //VREF in unbuffered mode (to be rail to rail 0->5V) (BUF = 0)
+  //Gain is 1 (GA = 1)
+  //Output activated (SHDN=1)
+  //Value from bit 11 downto 0
+
+  uint16_t command = (value >> 4) & 0x0FFF;
+  command += (MCP49X1_UNBUFFERED | MCP49X1_GAIN_1 | MCP49X1_ACTIVE);
+
+  uint8_t buffer[2] = {(command >> 8) & 0xFF, command & 0xFF};
+
+  // Lights the LED with the full value
+  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, value);
+  HAL_SPI_Transmit(&hspi1, buffer, 2, HAL_MAX_DELAY);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -106,10 +157,20 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_ADC_Start_IT(&hadc);
-  HAL_TIM_Base_Start(&htim1);
+  DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM1_STOP;
+
+  nvlp_driver.get_gate_pin = get_gate_pin;
+  nvlp_driver.get_potentiometer = get_potentiometer;
+  nvlp_driver.set_output = set_output;
+
+  h_nvlp.driver = &nvlp_driver;
 
   nvlp_init(&h_nvlp);
+
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  HAL_ADC_Start_IT(&hadc);
+  HAL_TIM_Base_Start(&htim1);
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */

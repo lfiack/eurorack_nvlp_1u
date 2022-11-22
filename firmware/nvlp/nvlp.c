@@ -27,12 +27,15 @@ nvlp_status_t nvlp_init(h_nvlp_t * h_nvlp)
 
 void nvlp_interrupt_callback(h_nvlp_t * h_nvlp)
 {
+    // If Pin released
     if (0 == h_nvlp->driver->get_gate_pin())
     {
+        
         h_nvlp->gate_pin = 0;
     }
-    else
+    else    // If Pin pressed
     {
+        // If pin was not pressed before (= rising edge)
         if (0 == h_nvlp->gate_pin)
         {
             h_nvlp->state = NVLP_STATE_ATTACK;
@@ -49,7 +52,6 @@ void nvlp_interrupt_callback(h_nvlp_t * h_nvlp)
     {
         case NVLP_STATE_REST:
             h_nvlp->output = 0;
-            h_nvlp->driver->set_output(0);
             break;
         case NVLP_STATE_ATTACK:
             compute_rising(h_nvlp);
@@ -58,6 +60,8 @@ void nvlp_interrupt_callback(h_nvlp_t * h_nvlp)
             compute_falling(h_nvlp);
             break;
     }
+
+    h_nvlp->driver->set_output(h_nvlp->output);
 }
 
 void compute_attack_decay(h_nvlp_t * h_nvlp)
@@ -107,10 +111,36 @@ void compute_attack_decay(h_nvlp_t * h_nvlp)
 
 void compute_rising(h_nvlp_t * h_nvlp)
 {
+    uint32_t output_temp = (uint32_t) h_nvlp->output;
 
+    // output increases from 0 to 65535 in h_nvlp->attack ticks (ms)
+    // increment is 65535 / h_nvlp->attack;
+    uint32_t increment = 65535 / h_nvlp->attack;
+    output_temp += increment;
+
+    if (output_temp >= 65535)
+    {
+        output_temp = 65535;
+        h_nvlp->state = NVLP_STATE_DECAY;
+    }
+
+    h_nvlp->output = (uint16_t) output_temp;
 }
 
 void compute_falling(h_nvlp_t * h_nvlp)
 {
+    int32_t output_temp = (int32_t) h_nvlp->output;
 
+    // output decreses from 65535 to 0 in h_nvlp->decay ticks (ms)
+    // decrement is 65535 / h_nvlp->decay;
+    uint32_t decrement = 65535 / h_nvlp->decay;
+    output_temp -= decrement;
+
+    if (output_temp <= 0)
+    {
+        output_temp = 0;
+        h_nvlp->state = NVLP_STATE_REST;
+    }
+
+    h_nvlp->output = (uint16_t) output_temp;
 }
