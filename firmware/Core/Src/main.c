@@ -118,7 +118,10 @@ void set_output(uint16_t value)
 
   // Lights the LED with the full value
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, value);
+
+  HAL_GPIO_WritePin(DAC_SPI_nSS_GPIO_Port, DAC_SPI_nSS_Pin, GPIO_PIN_RESET);
   HAL_SPI_Transmit(&hspi1, buffer, 2, HAL_MAX_DELAY);
+  HAL_GPIO_WritePin(DAC_SPI_nSS_GPIO_Port, DAC_SPI_nSS_Pin, GPIO_PIN_SET);
 }
 
 /* USER CODE END 0 */
