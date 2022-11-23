@@ -1,5 +1,5 @@
 #MicroXplorer Configuration settings - do not modify
-ADC.ContinuousConvMode=ENABLE
+ADC.ContinuousConvMode=DISABLE
 ADC.DataAlign=ADC_DATAALIGN_LEFT
 ADC.ExternalTrigConv=ADC_EXTERNALTRIGCONV_T1_TRGO
 ADC.IPParameters=SamplingTime,ExternalTrigConv,ContinuousConvMode,Overrun,DataAlign

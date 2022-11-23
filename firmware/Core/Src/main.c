@@ -52,7 +52,7 @@ nvlp_driver_t nvlp_driver;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+uint32_t irq_counter = 0;
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -62,6 +62,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
   if (ADC1 == hadc->Instance)
   {
     nvlp_interrupt_callback(&h_nvlp);
+    irq_counter++;
   }
 }
 
@@ -88,9 +89,7 @@ uint8_t get_gate_pin(void)
 
 uint16_t get_potentiometer(void)
 {
-  __HAL_ADC_CLEAR_FLAG(&hadc,ADC_FLAG_EOC);
-  return (uint16_t) HAL_ADC_GetValue(&hadc);
-//  return 20000;
+  return (uint16_t) 65535 - HAL_ADC_GetValue(&hadc);
 }
 
 #define MCP49X1_UNBUFFERED 0
@@ -158,6 +157,8 @@ int main(void)
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
   DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM1_STOP;
+
+  HAL_ADCEx_Calibration_Start(&hadc);
 
   nvlp_driver.get_gate_pin = get_gate_pin;
   nvlp_driver.get_potentiometer = get_potentiometer;
