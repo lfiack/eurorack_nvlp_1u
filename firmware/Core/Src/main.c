@@ -166,6 +166,7 @@ int main(void)
 
   h_nvlp.driver = &nvlp_driver;
 
+  h_nvlp.is_lfo = true;
   nvlp_init(&h_nvlp);
 
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);

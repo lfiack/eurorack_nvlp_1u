@@ -20,7 +20,14 @@ nvlp_status_t nvlp_init(h_nvlp_t * h_nvlp)
     h_nvlp->output = 0;
     h_nvlp->attack = NVLP_ATTACK_MIN;
     h_nvlp->decay = NVLP_DECAY_MIN;
-    h_nvlp->state = NVLP_STATE_REST;
+    if (false == h_nvlp->is_lfo)
+    {
+        h_nvlp->state = NVLP_STATE_REST;
+    }
+    else    // is LFO
+    {
+        h_nvlp->state = NVLP_STATE_ATTACK;
+    }
 
     return NVLP_OK;
 }
@@ -28,21 +35,23 @@ nvlp_status_t nvlp_init(h_nvlp_t * h_nvlp)
 void nvlp_interrupt_callback(h_nvlp_t * h_nvlp)
 {
     // If Pin released
-    if (0 == h_nvlp->driver->get_gate_pin())
+    if (false == h_nvlp->is_lfo)
     {
-        
-        h_nvlp->gate_pin = 0;
-    }
-    else    // If Pin pressed
-    {
-        // If pin was not pressed before (= rising edge)
-        if (0 == h_nvlp->gate_pin)
+        if (0 == h_nvlp->driver->get_gate_pin())
         {
-            h_nvlp->state = NVLP_STATE_ATTACK;
-            h_nvlp->gate_pin = 1;
+            h_nvlp->gate_pin = 0;
+        }
+        else    // If Pin pressed
+        {
+            // If pin was not pressed before (= rising edge)
+            if (0 == h_nvlp->gate_pin)
+            {
+                h_nvlp->state = NVLP_STATE_ATTACK;
+                h_nvlp->gate_pin = 1;
 
-            // No debounce for now
-            // TODO maybe add later?
+                // No debounce for now
+                // TODO maybe add later?
+            }
         }
     }
 
@@ -139,7 +148,14 @@ void compute_falling(h_nvlp_t * h_nvlp)
     if (output_temp <= 0)
     {
         output_temp = 0;
-        h_nvlp->state = NVLP_STATE_REST;
+        if (false == h_nvlp->is_lfo)
+        {
+            h_nvlp->state = NVLP_STATE_REST;
+        }
+        else    // is LFO
+        {
+            h_nvlp->state = NVLP_STATE_ATTACK;
+        }
     }
 
     h_nvlp->output = (uint16_t) output_temp;

@@ -2,12 +2,13 @@
 #define __NVLP_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* Attack and Decay durations in tick (so it depends on timer configuration. I suggest 1ms) */
 #define NVLP_ATTACK_MIN 1
-#define NVLP_ATTACK_MAX 3000
+#define NVLP_ATTACK_MAX 10000
 #define NVLP_DECAY_MIN 1
-#define NVLP_DECAY_MAX 3000
+#define NVLP_DECAY_MAX 10000
 
 /* NVLP potentiometers scans through 4 different behaviors:
  * 1. From 0 to NVLP_ADC_DECAY_MAX, Rising time is minimal and falling increases to max value
@@ -47,6 +48,7 @@ typedef struct nvlp_driver_struct
 typedef struct h_nvlp_struct
 {
     nvlp_driver_t * driver;
+    bool is_lfo;
 
     uint16_t attack;
     uint16_t decay;
